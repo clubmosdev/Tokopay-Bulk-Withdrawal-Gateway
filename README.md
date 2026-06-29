@@ -9,7 +9,7 @@ immediately**, and a built-in **parallel worker** submits each transaction to
 TOKOPAY. You then poll the `batchId` to get every transaction's current status,
 its hash, and the **full TOKOPAY response**.
 
-No `.env` is required — it talks to the standard `https://www.tokopay.io`
+it talks to the standard `https://www.tokopay.io`
 endpoint out of the box.
 
 ---
@@ -234,4 +234,3 @@ kind load docker-image tokopay-bulk-withdrawal:latest        # kind
 # or
 minikube image load tokopay-bulk-withdrawal:latest           # minikube
 ```
-# Tokopay-Bulk-Withdrawal-Gateway
