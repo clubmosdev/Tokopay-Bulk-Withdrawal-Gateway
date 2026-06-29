@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tokopay-bulk-withdrawal
+  labels:
+    app: tokopay-bulk-withdrawal
+spec:
+  type: ClusterIP # change to LoadBalancer / NodePort to expose externally
+  selector:
+    app: tokopay-bulk-withdrawal
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080

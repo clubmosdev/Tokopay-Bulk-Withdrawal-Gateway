@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tokopay-bulk-withdrawal
+  labels:
+    app: tokopay-bulk-withdrawal
+spec:
+  # MUST be 1. PGlite is an embedded single-writer database — multiple pods
+  # cannot share the same data volume. To scale horizontally, switch the worker
+  # to a real Postgres (see README → Scaling) and then raise replicas.
+  replicas: 1
+  strategy:
+    type: Recreate # never run two pods against the same PVC at once
+  selector:
+    matchLabels:
+      app: tokopay-bulk-withdrawal
+  template:
+    metadata:
+      labels:
+        app: tokopay-bulk-withdrawal
+    spec:
+      containers:
+        - name: app
+          image: tokopay-bulk-withdrawal:latest # <-- replace with your registry/image:tag
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+            - name: PGDATA_DIR
+              value: /app/pgdata
+            # Optional tuning (all have defaults; none required):
+            - name: WORKER_CONCURRENCY
+              value: "8"
+            - name: MAX_BATCH_SIZE
+              value: "1000"
+          volumeMounts:
+            - name: data
+              mountPath: /app/pgdata
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: bulk-withdrawal-data

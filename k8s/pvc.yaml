@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: bulk-withdrawal-data
+  labels:
+    app: tokopay-bulk-withdrawal
+spec:
+  accessModes:
+    - ReadWriteOnce # PGlite is single-writer; one pod owns this volume.
+  resources:
+    requests:
+      storage: 1Gi
