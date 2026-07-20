@@ -24,8 +24,22 @@ export const TOKOPAY_BASE = str("TOKOPAY_BASE", "https://www.tokopay.io").replac
 /** Embedded PGlite data directory (persisted to disk; mount a volume here). */
 export const PGDATA_DIR = str("PGDATA_DIR", "./pgdata");
 
-/** How many TOKOPAY requests the worker keeps in flight at once. */
+/**
+ * How many TOKOPAY requests the worker keeps in flight at once. This is now a
+ * limit on how many DISTINCT wallets are processed concurrently — a single
+ * wallet is always processed strictly one transaction at a time (see worker.ts),
+ * because concurrent sends for the same wallet collide on the on-chain nonce and
+ * TOKOPAY rejects them with "Replacement transaction underpriced".
+ */
 export const WORKER_CONCURRENCY = num("WORKER_CONCURRENCY", 8);
+
+/**
+ * Optional pause after a wallet's transaction settles before its next one is
+ * sent. Sequential-per-wallet already prevents nonce collisions; this is only a
+ * safety margin for RPC nodes whose "pending" nonce lags a moment behind a fresh
+ * broadcast. Default 0 (no extra wait).
+ */
+export const WALLET_SEND_SPACING_MS = num("WALLET_SEND_SPACING_MS", 0);
 
 /** Idle poll interval when there's no queued work. */
 export const POLL_INTERVAL_MS = num("POLL_INTERVAL_MS", 750);
